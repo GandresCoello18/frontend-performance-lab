@@ -1,46 +1,74 @@
 import { formatPrice } from './format.ts';
 import type { ProductCard } from './carousel.ts';
 
-function cardHtml(product: ProductCard): string {
-  return `<article class="card" data-id="${product.id}">
-    <img src="${product.image}" alt="${product.name}" />
-    <h3>${product.name}</h3>
-    <p>${product.shortDescription}</p>
-    <span class="price">${formatPrice(product.price)}</span>
-  </article>`;
+function el<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  attrs: Record<string, string> = {},
+): HTMLElementTagNameMap[K] {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (key === 'class') node.className = value;
+    else node.setAttribute(key, value);
+  }
+  return node;
 }
 
 export function renderProducts(grid: HTMLElement, products: ProductCard[]): void {
-  // PROBLEMA #4: innerHTML con datos del API (la reseña maliciosa se pinta más abajo).
-  grid.innerHTML = products.map(cardHtml).join('');
+  grid.replaceChildren(
+    ...products.map((product) => {
+      const article = el('article', { class: 'card', 'data-id': product.id });
+      const img = el('img', { src: product.image, alt: product.name });
+      const title = el('h3');
+      title.textContent = product.name;
+      const copy = el('p');
+      copy.textContent = product.shortDescription;
+      const price = el('span', { class: 'price' });
+      price.textContent = formatPrice(product.price);
+      article.append(img, title, copy, price);
+      return article;
+    }),
+  );
 }
 
 export function renderReviews(list: HTMLElement, reviews: ProductCard['reviews']): void {
-  if (!reviews) {
-    list.innerHTML = '';
-    return;
+  list.replaceChildren();
+  if (!reviews) return;
+  for (const review of reviews) {
+    const quote = el('blockquote', { class: 'review' });
+    const who = el('strong');
+    who.textContent = review.author;
+    const stars = el('span', { class: 'stars' });
+    stars.textContent = '★'.repeat(review.rating);
+    const body = el('p');
+    body.textContent = review.body;
+    quote.append(who, stars, body);
+    list.append(quote);
   }
-  // PROBLEMA #4: XSS — el cuerpo de la reseña se inserta con innerHTML.
-  list.innerHTML = reviews
-    .map(
-      (review) => `<blockquote class="review">
-        <strong>${review.author}</strong>
-        <span class="stars">${'★'.repeat(review.rating)}</span>
-        <p>${review.body}</p>
-      </blockquote>`,
-    )
-    .join('');
 }
 
 export function renderSearchResults(box: HTMLElement, products: ProductCard[]): void {
-  box.innerHTML =
-    products.length === 0
-      ? '<p class="muted">Sin resultados.</p>'
-      : products
-          .map((p) => `<li><a href="#catalogo">${p.name} · ${formatPrice(p.price)}</a></li>`)
-          .join('');
+  box.replaceChildren();
+  if (products.length === 0) {
+    const empty = el('p', { class: 'muted' });
+    empty.textContent = 'Sin resultados.';
+    box.append(empty);
+    return;
+  }
+  for (const product of products) {
+    const item = el('li');
+    const link = el('a', { href: '#catalogo' });
+    link.textContent = `${product.name} · ${formatPrice(product.price)}`;
+    item.append(link);
+    box.append(item);
+  }
 }
 
-export function renderCategories(el: HTMLElement, categories: Array<{ name: string }>): void {
-  el.innerHTML = categories.map((c) => `<li>${c.name}</li>`).join('');
+export function renderCategories(elRoot: HTMLElement, categories: Array<{ name: string }>): void {
+  elRoot.replaceChildren(
+    ...categories.map((category) => {
+      const item = el('li');
+      item.textContent = category.name;
+      return item;
+    }),
+  );
 }

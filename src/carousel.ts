@@ -10,15 +10,25 @@ export interface ProductCard {
   reviews?: Array<{ author: string; body: string; rating: number }>;
 }
 
-function slideTemplate(product: ProductCard, index: number, total: number): string {
-  return `
-    <article class="slide" role="group" aria-roledescription="lámina" aria-label="${index + 1} de ${total}" data-index="${index}">
-      <img src="${product.image}" alt="${product.name}" />
-      <h3>${product.name}</h3>
-      <p>${product.shortDescription}</p>
-      <span class="price">${formatPrice(product.price)}</span>
-    </article>
-  `;
+function slideNode(product: ProductCard, index: number, total: number): HTMLElement {
+  const article = document.createElement('article');
+  article.className = 'slide';
+  article.role = 'group';
+  article.setAttribute('aria-roledescription', 'lámina');
+  article.setAttribute('aria-label', `${index + 1} de ${total}`);
+  article.dataset.index = String(index);
+  const img = document.createElement('img');
+  img.src = product.image;
+  img.alt = product.name;
+  const title = document.createElement('h3');
+  title.textContent = product.name;
+  const copy = document.createElement('p');
+  copy.textContent = product.shortDescription;
+  const price = document.createElement('span');
+  price.className = 'price';
+  price.textContent = formatPrice(product.price);
+  article.append(img, title, copy, price);
+  return article;
 }
 
 /**
@@ -34,13 +44,19 @@ export function initCarousel(root: HTMLElement, products: ProductCard[]): void {
 
   let activeIndex = 0;
 
-  track.innerHTML = products.map((p, i) => slideTemplate(p, i, products.length)).join('');
-  dots.innerHTML = products
-    .map(
-      (_, i) =>
-        `<button type="button" class="dot" role="tab" aria-selected="${i === 0}" aria-label="Ir a ${i + 1}" data-dot="${i}"></button>`,
-    )
-    .join('');
+  track.replaceChildren(...products.map((p, i) => slideNode(p, i, products.length)));
+  dots.replaceChildren(
+    ...products.map((_, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'dot';
+      btn.role = 'tab';
+      btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      btn.setAttribute('aria-label', `Ir a ${i + 1}`);
+      btn.dataset.dot = String(i);
+      return btn;
+    }),
+  );
 
   const slides = [...track.querySelectorAll<HTMLElement>('.slide')];
 

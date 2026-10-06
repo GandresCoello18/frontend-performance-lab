@@ -1,5 +1,4 @@
 import { initCarousel, type ProductCard } from './carousel.ts';
-import { fakeSessionId } from './dead-code.ts';
 import { getJson } from './fetch-client.ts';
 import { headline, todayLabel } from './unused-helpers.ts';
 import { initSearch } from './search.ts';
@@ -19,7 +18,6 @@ interface CategoryDto {
 async function boot(): Promise<void> {
   initVitals();
   document.querySelector('[data-fecha]')!.textContent = `${headline('catálogo')} · ${todayLabel()}`;
-  console.log('[sesion]', fakeSessionId());
 
   const searchInput = document.querySelector<HTMLInputElement>('[data-search]')!;
   const searchResults = document.querySelector<HTMLElement>('[data-search-results]')!;

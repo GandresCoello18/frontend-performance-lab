@@ -9,16 +9,16 @@ describe('API Casa Lumen', () => {
     await expect(res.json()).resolves.toEqual({ ok: true });
   });
 
-  it('GET /api/products devuelve el catálogo con los campos de la ficha', async () => {
+  it('GET /api/products no filtra emails ni costes internos', async () => {
     const res = await app.request('/api/products');
     expect(res.status).toBe(200);
-    const body = (await res.json()) as Array<{ id: string; name: string; price: number }>;
+    expect(res.headers.get('Content-Security-Policy')).toMatch(/frame-ancestors 'none'/);
+    expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    const body = (await res.json()) as Array<Record<string, unknown>>;
     expect(body.length).toBe(products.length);
-    expect(body[0]).toMatchObject({
-      id: expect.any(String),
-      name: expect.any(String),
-      price: expect.any(Number),
-    });
+    expect(body[0]).not.toHaveProperty('supplier');
+    expect(body[0]).not.toHaveProperty('internalNotes');
+    expect(body[0]).toHaveProperty('name');
   });
 
   it('GET /api/products?q=lámpara filtra por nombre', async () => {
