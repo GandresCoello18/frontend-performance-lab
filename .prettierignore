@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+pnpm-lock.yaml
+public/images
+public/legacy-analytics.js
+lh-*.json

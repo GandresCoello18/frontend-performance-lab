@@ -1,0 +1,51 @@
+{
+  "name": "frontend-performance-lab",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Demo de clase: rendimiento, observabilidad y buenas pr\u00e1cticas en frontend (JavaScript).",
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"tsx watch server/index.ts\" \"vite\"",
+    "dev:api": "tsx watch server/index.ts",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server/index.ts",
+    "preview": "pnpm build && pnpm start",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.3",
+    "hono": "^4.13.13",
+    "lodash": "^4.18.1",
+    "moment": "^2.31.0",
+    "web-vitals": "^6.2.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/lodash": "^4.17.25",
+    "@types/node": "^26.6.4",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

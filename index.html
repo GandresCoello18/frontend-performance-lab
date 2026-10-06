@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Casa Lumen — Diseño para el hogar</title>
+    <meta
+      name="description"
+      content="Tienda demo para una clase de rendimiento frontend. Versión generada con IA sin cuidado: funciona y se ve bien, pero el Network y Lighthouse cuentan otra historia."
+    />
+    <!-- PROBLEMA #3: fuente remota bloqueante, sin preconnect y display=block. -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=block"
+    />
+    <!-- PROBLEMA #3: CSS no usado que bloquea el primer pintado. -->
+    <link rel="stylesheet" href="/src/styles/unused.css" />
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <!-- PROBLEMA #3: script síncrono en el head (bloquea el parseo). -->
+    <script src="/legacy-analytics.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="logo" href="/">casa <span>lumen</span></a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#destacados">Destacados</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#resenas">Reseñas</a>
+      </nav>
+      <form class="search" role="search" action="#" onsubmit="return false;">
+        <label class="sr-only" for="q">Buscar productos</label>
+        <input id="q" type="search" placeholder="Busca auriculares, lámpara…" data-search />
+        <ul class="search-results" data-search-results hidden></ul>
+      </form>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow" data-fecha></p>
+          <h1>Objetos serenos para una casa que se usa.</h1>
+          <p class="lede" data-hero-text>
+            Audio, luz, cerámica y textil. Una tienda demo que se ve bien… hasta que abres DevTools.
+          </p>
+          <p class="kicker" data-hero-kicker></p>
+          <a class="btn" href="#catalogo">Ver el catálogo</a>
+        </div>
+        <div class="hero-media">
+          <!-- PROBLEMA #3: imagen LCP enorme, sin width/height (CLS), sin fetchpriority ni lazy. -->
+          <img src="/images/hero.jpg" alt="Rincón de salón con luz cálida, Casa Lumen" />
+        </div>
+      </section>
+
+      <section id="destacados" class="section">
+        <div class="section-head">
+          <h2>Destacados de la temporada</h2>
+          <p>Un carrusel clásico: estado, botones, puntos, scroll y ARIA a mano.</p>
+        </div>
+        <div
+          class="carousel"
+          data-carousel
+          role="region"
+          aria-roledescription="carrusel"
+          aria-label="Productos destacados"
+        >
+          <button type="button" class="carousel-btn prev" data-prev aria-label="Anterior">‹</button>
+          <div class="carousel-track" data-track tabindex="0"></div>
+          <button type="button" class="carousel-btn next" data-next aria-label="Siguiente">
+            ›
+          </button>
+          <div class="carousel-dots" data-dots role="tablist" aria-label="Selector de lámina"></div>
+        </div>
+      </section>
+
+      <section id="catalogo" class="section">
+        <div class="section-head">
+          <h2>Catálogo</h2>
+          <p>La ficha usa dos o tres campos. El JSON trae proveedores, costes y reseñas.</p>
+        </div>
+        <div class="grid" data-grid></div>
+      </section>
+
+      <section id="resenas" class="section reviews-section">
+        <div class="section-head">
+          <h2>Lo que cuenta quien ya vive con ello</h2>
+        </div>
+        <div class="reviews" data-reviews></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <p class="logo">casa lumen</p>
+        <p class="muted">Demo de clase · no es una tienda real · 2026</p>
+      </div>
+      <ul data-cats></ul>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
