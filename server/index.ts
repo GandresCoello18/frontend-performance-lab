@@ -1,12 +1,15 @@
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { createHash } from 'node:crypto';
 import { Hono } from 'hono';
+import { compress } from 'hono/compress';
+import type { Context } from 'hono';
 import { allReviews, categories, products, searchProducts } from './data.ts';
+import { toPublicProduct, toPublicReview } from './dto.ts';
 import { API_DELAY_MS, sleep } from './util.ts';
 
 export const app = new Hono();
 
-// PROBLEMA #4: CORS permisivo (cualquier origen, cualquier cabecera/método).
 app.use('*', async (c, next) => {
   c.header('Access-Control-Allow-Origin', '*');
   c.header('Access-Control-Allow-Methods', '*');
@@ -17,40 +20,75 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-// PROBLEMA #4: sin cabeceras de seguridad (CSP, X-Content-Type-Options, Referrer-Policy, frame-ancestors).
-// PROBLEMA #2: sin Cache-Control ni ETag; cada visita vuelve a bajar el JSON completo.
+app.use('/api/*', compress());
 
 app.use('/api/*', async (_, next) => {
   await sleep(API_DELAY_MS);
   await next();
 });
 
+const PUBLIC_FIELDS = ['id', 'name', 'shortDescription', 'price', 'image', 'category'] as const;
+
+function digest(payload: unknown): string {
+  return `"${createHash('sha1').update(JSON.stringify(payload)).digest('hex')}"`;
+}
+
+function jsonCached(c: Context, payload: unknown, maxAge = 30) {
+  const tag = digest(payload);
+  c.header('ETag', tag);
+  c.header('Cache-Control', `public, max-age=${maxAge}, stale-while-revalidate=120`);
+  if (c.req.header('If-None-Match') === tag) {
+    return c.body(null, 304);
+  }
+  return c.json(payload);
+}
+
+function pickFields(item: Record<string, unknown>, fields: string[]): Record<string, unknown> {
+  if (fields.length === 0) return item;
+  const out: Record<string, unknown> = {};
+  for (const field of fields) {
+    if (field in item) out[field] = item[field];
+  }
+  return out;
+}
+
 app.get('/api/health', (c) => c.json({ ok: true }));
 
-app.get('/api/products', async (c) => {
+app.get('/api/products', (c) => {
   const q = c.req.query('q') ?? '';
-  const jitter = Number(c.req.query('slow') ?? '0');
-  // PROBLEMA #2: jitter opcional para que la búsqueda muestre condiciones de carrera.
-  if (q) {
-    const extra =
-      process.env.VITEST === 'true' ? 0 : 120 + Math.floor(Math.random() * 500) + jitter;
-    await sleep(extra);
-    return c.json(searchProducts(q));
-  }
-  // PROBLEMA #2: sobre-fetch (objetos enormes: reseñas, proveedor, costes, emails).
-  // PROBLEMA #4: se filtran campos sensibles que la UI no usa.
-  return c.json(products);
+  const page = Math.max(1, Number(c.req.query('page') ?? '1'));
+  const limit = Math.min(24, Math.max(1, Number(c.req.query('limit') ?? '12')));
+  const fields = (c.req.query('fields') ?? '')
+    .split(',')
+    .map((f) => f.trim())
+    .filter((f) => (PUBLIC_FIELDS as readonly string[]).includes(f));
+
+  const matches = searchProducts(q).map(toPublicProduct);
+  const start = (page - 1) * limit;
+  const slice = matches
+    .slice(start, start + limit)
+    .map((item) => pickFields({ ...item } as Record<string, unknown>, fields));
+  return jsonCached(c, {
+    items: slice,
+    page,
+    limit,
+    total: matches.length,
+  });
 });
 
-app.get('/api/featured', (c) => c.json(products.slice(0, 5)));
+app.get('/api/featured', (c) => jsonCached(c, products.slice(0, 5).map(toPublicProduct)));
 
-app.get('/api/reviews', (c) => c.json(allReviews()));
+app.get('/api/reviews', (c) => jsonCached(c, allReviews().map(toPublicReview)));
 
-app.get('/api/categories', (c) => c.json(categories));
+app.get('/api/categories', (c) =>
+  jsonCached(
+    c,
+    categories.map((cat) => ({ id: cat.id, name: cat.name })),
+  ),
+);
 
 app.post('/api/metrics', async (c) => {
   const body = await c.req.json().catch(() => ({}));
-  // OBSERVABILIDAD: el servidor deja constancia de LCP/INP/CLS/TTFB para la clase.
   console.info('[vitals]', JSON.stringify(body));
   return c.json({ ok: true });
 });

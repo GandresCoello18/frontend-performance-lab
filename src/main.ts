@@ -6,6 +6,11 @@ import { initSearch } from './search.ts';
 import { renderCategories, renderProducts, renderReviews } from './render.ts';
 import { initVitals } from './vitals.ts';
 
+interface ProductPage {
+  items: ProductCard[];
+  total: number;
+}
+
 interface ReviewDto {
   author: string;
   body: string;
@@ -21,40 +26,46 @@ async function boot(): Promise<void> {
   document.querySelector('[data-fecha]')!.textContent = `${headline('catálogo')} · ${todayLabel()}`;
   console.log('[sesion]', fakeSessionId());
 
+  const status = document.querySelector<HTMLElement>('[data-status]')!;
   const searchInput = document.querySelector<HTMLInputElement>('[data-search]')!;
   const searchResults = document.querySelector<HTMLElement>('[data-search-results]')!;
   initSearch(searchInput, searchResults);
 
-  // PROBLEMA #2: cascada — cuatro awaits en serie que podrían ir en Promise.all.
+  status.hidden = false;
+  status.textContent = 'Cargando catálogo…';
+
   performance.mark('carga-inicio');
+  try {
+    const [featured, page, reviews, categories] = await Promise.all([
+      getJson<ProductCard[]>('/api/featured'),
+      getJson<ProductPage>(
+        '/api/products?page=1&limit=12&fields=id,name,shortDescription,price,image',
+      ),
+      getJson<ReviewDto[]>('/api/reviews'),
+      getJson<CategoryDto[]>('/api/categories'),
+    ]);
 
-  const featured = await getJson<ProductCard[]>('/api/featured');
-  const highlight = featured[0];
-  if (highlight) {
-    document.querySelector('[data-hero-kicker]')!.textContent = highlight.name;
-    document.querySelector('[data-hero-text]')!.textContent = highlight.shortDescription;
+    const highlight = featured[0];
+    if (highlight) {
+      document.querySelector('[data-hero-kicker]')!.textContent = highlight.name;
+      document.querySelector('[data-hero-text]')!.textContent = highlight.shortDescription;
+    }
+
+    renderProducts(document.querySelector('[data-grid]')!, page.items);
+    initCarousel(document.querySelector('[data-carousel]')!, featured);
+    renderReviews(document.querySelector('[data-reviews]')!, reviews);
+    renderCategories(document.querySelector('[data-cats]')!, categories);
+    status.hidden = true;
+  } catch (error) {
+    console.error(error);
+    status.hidden = false;
+    status.textContent = 'No pudimos cargar el catálogo. Revisa la red y recarga.';
+  } finally {
+    performance.mark('carga-fin');
+    performance.measure('cascada-inicial', 'carga-inicio', 'carga-fin');
+    const measure = performance.getEntriesByName('cascada-inicial')[0];
+    console.log('[perf] cascada-inicial', measure?.duration);
   }
-
-  const products = await getJson<ProductCard[]>('/api/products');
-  renderProducts(document.querySelector('[data-grid]')!, products);
-
-  const reviews = await getJson<ReviewDto[]>('/api/reviews');
-  renderReviews(document.querySelector('[data-reviews]')!, reviews);
-
-  const categories = await getJson<CategoryDto[]>('/api/categories');
-  renderCategories(document.querySelector('[data-cats]')!, categories);
-
-  performance.mark('carga-fin');
-  performance.measure('cascada-inicial', 'carga-inicio', 'carga-fin');
-  const measure = performance.getEntriesByName('cascada-inicial')[0];
-  console.log('[perf] cascada-inicial', measure?.duration);
-
-  // PROBLEMA #2: el carrusel vuelve a pedir el mismo endpoint.
-  performance.mark('carrusel-inicio');
-  const again = await getJson<ProductCard[]>('/api/products');
-  initCarousel(document.querySelector('[data-carousel]')!, again.slice(0, 5));
-  performance.mark('carrusel-fin');
-  performance.measure('fetch-carrusel', 'carrusel-inicio', 'carrusel-fin');
 }
 
 void boot();

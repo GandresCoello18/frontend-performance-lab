@@ -1,18 +1,37 @@
-import { PAYMENTS_API_KEY } from './secrets.ts';
+import { cachedGet } from './cache.ts';
 
-export async function getJson<T>(url: string): Promise<T> {
-  // PROBLEMA #2: sin caché, sin deduplicar, sin timeout, sin AbortController.
-  const response = await fetch(url, {
-    headers: {
-      // PROBLEMA #4: la clave viaja en cada petición y aparece en la pestaña Network.
-      Authorization: `Bearer ${PAYMENTS_API_KEY}`,
-    },
+export async function getJson<T>(
+  url: string,
+  options?: { signal?: AbortSignal; timeoutMs?: number; skipCache?: boolean },
+): Promise<T> {
+  return cachedGet(url, () => fetchWithTimeout<T>(url, options), {
+    skipCache: options?.skipCache,
   });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} ${url}`);
+}
+
+async function fetchWithTimeout<T>(
+  url: string,
+  options?: { signal?: AbortSignal; timeoutMs?: number },
+): Promise<T> {
+  const timeout = options?.timeoutMs ?? 8000;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+  options?.signal?.addEventListener('abort', () => ctrl.abort(), { once: true });
+  try {
+    const response = await fetch(url, { signal: ctrl.signal });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${url}`);
+    }
+    return (await response.json()) as T;
+  } finally {
+    clearTimeout(timer);
   }
-  const data = (await response.json()) as T;
-  // PROBLEMA #4: volcado verboso de datos (incluye emails, costes, proveedores).
-  console.log('[fetch]', url, data);
-  return data;
+}
+
+export function debounce(fn: (value: string) => void, ms: number): (value: string) => void {
+  let handle: ReturnType<typeof setTimeout> | undefined;
+  return (value: string) => {
+    clearTimeout(handle);
+    handle = setTimeout(() => fn(value), ms);
+  };
 }
