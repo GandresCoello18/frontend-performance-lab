@@ -50,7 +50,7 @@ docs/guion-clase.md     guión de 5 minutos
 | `fix/02-fetch`        | Promise.all, caché, DTO/paginación, ETag, debounce          |
 | `fix/03-carga`        | Imágenes, fuentes, bundle, lazy/priority, code splitting    |
 | `fix/04-seguridad`    | XSS, secretos, cabeceras, CORS, source maps, `.env`         |
-| `solucion`            | Todo lo anterior junto (PR abierto hacia `main`, sin merge) |
+| `solucion`            | Todo lo anterior junto (abre un PR hacia `main` y **no lo mergees**) |
 
 ## Problemas (mapa para DevTools)
 
