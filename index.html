@@ -54,22 +54,15 @@
       <section id="destacados" class="section">
         <div class="section-head">
           <h2>Destacados de la temporada</h2>
-          <p>Un carrusel clásico: estado, botones, puntos, scroll y ARIA a mano.</p>
+          <p>
+            Solo HTML y CSS: <code>scroll-marker-group</code>, botones y marcadores del navegador.
+          </p>
         </div>
-        <div
-          class="carousel"
-          data-carousel
-          role="region"
-          aria-roledescription="carrusel"
-          aria-label="Productos destacados"
-        >
-          <button type="button" class="carousel-btn prev" data-prev aria-label="Anterior">‹</button>
-          <div class="carousel-track" data-track tabindex="0"></div>
-          <button type="button" class="carousel-btn next" data-next aria-label="Siguiente">
-            ›
-          </button>
-          <div class="carousel-dots" data-dots role="tablist" aria-label="Selector de lámina"></div>
-        </div>
+        <ul class="carousel" data-carousel aria-label="Productos destacados"></ul>
+        <p class="carousel-hint">
+          Desliza para ver más. En Chrome 154+ el propio navegador genera botones, marcadores y el
+          patrón de pestañas (WAI-ARIA). En Firefox y Safari queda un scroll-snap nativo.
+        </p>
       </section>
 
       <section id="catalogo" class="section">

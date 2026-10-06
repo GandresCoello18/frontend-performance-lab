@@ -185,29 +185,101 @@ a {
 }
 
 .carousel {
+  list-style: none;
+  margin: 0;
   position: relative;
-  background: var(--card);
-  border-radius: 24px;
-  padding: 1.2rem 3.4rem 2.6rem;
-  box-shadow: var(--shadow);
-}
-
-.carousel-track {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 1.2rem 3.4rem 1.4rem;
+  box-shadow: var(--shadow);
   scrollbar-width: none;
 }
 
-.carousel-track::-webkit-scrollbar {
+.carousel::-webkit-scrollbar {
   display: none;
 }
 
 .slide {
   flex: 0 0 42%;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   min-width: 240px;
+}
+
+.carousel-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.8rem 0 0;
+}
+
+/* Chrome 154+: modos links | tabs. Sintaxis: [before | after] || [links | tabs]. */
+@supports (scroll-marker-group: after tabs) {
+  .carousel {
+    scroll-marker-group: after tabs;
+    anchor-name: --carrusel;
+  }
+
+  .carousel-hint {
+    display: none;
+  }
+
+  .carousel::scroll-button(*) {
+    position: absolute;
+    position-anchor: --carrusel;
+    align-self: anchor-center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+
+  .carousel::scroll-button(*):disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .carousel::scroll-button(left) {
+    content: '‹' / 'Anterior';
+    right: calc(anchor(left) - 52px);
+  }
+
+  .carousel::scroll-button(right) {
+    content: '›' / 'Siguiente';
+    left: calc(anchor(right) - 52px);
+  }
+
+  .carousel::scroll-marker-group {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+  }
+
+  .slide::scroll-marker {
+    content: attr(data-nombre);
+    width: 9px;
+    height: 9px;
+    border-radius: 99px;
+    background: #d7cdc0;
+    overflow: hidden;
+    text-indent: 12px;
+    color: transparent;
+  }
+
+  .slide::scroll-marker:target-current {
+    background: var(--accent);
+    width: 22px;
+  }
 }
 
 .slide img,
@@ -226,49 +298,6 @@ a {
 .price {
   color: var(--accent-dark);
   font-weight: 600;
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 42%;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--ink);
-  color: white;
-  font-size: 1.4rem;
-  cursor: pointer;
-}
-
-.carousel-btn.prev {
-  left: 0.7rem;
-}
-
-.carousel-btn.next {
-  right: 0.7rem;
-}
-
-.carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.45rem;
-  margin-top: 1rem;
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 99px;
-  border: 0;
-  background: #d7cdc0;
-  padding: 0;
-  cursor: pointer;
-}
-
-.dot.active {
-  background: var(--accent);
-  width: 22px;
 }
 
 .grid {

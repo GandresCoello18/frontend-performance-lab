@@ -1,6 +1,6 @@
 import { getJson } from './fetch-client.ts';
 import { renderSearchResults } from './render.ts';
-import type { ProductCard } from './carousel.ts';
+import type { ProductCard } from './types.ts';
 
 /**
  * PROBLEMA #2: cada tecla dispara un GET. No hay debounce ni AbortController,

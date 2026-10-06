@@ -1,5 +1,5 @@
 import { formatPrice } from './format.ts';
-import type { ProductCard } from './carousel.ts';
+import type { ProductCard } from './types.ts';
 
 function cardHtml(product: ProductCard): string {
   return `<article class="card" data-id="${product.id}">
@@ -43,4 +43,19 @@ export function renderSearchResults(box: HTMLElement, products: ProductCard[]): 
 
 export function renderCategories(el: HTMLElement, categories: Array<{ name: string }>): void {
   el.innerHTML = categories.map((c) => `<li>${c.name}</li>`).join('');
+}
+
+export function renderCarousel(list: HTMLElement, products: ProductCard[]): void {
+  list.innerHTML = products
+    .map(
+      (product) => `<li class="slide" data-nombre="${product.name}">
+      <article>
+        <img src="${product.image}" alt="${product.name}" />
+        <h3>${product.name}</h3>
+        <p>${product.shortDescription}</p>
+        <span class="price">${formatPrice(product.price)}</span>
+      </article>
+    </li>`,
+    )
+    .join('');
 }

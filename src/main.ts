@@ -1,10 +1,10 @@
-import { initCarousel, type ProductCard } from './carousel.ts';
 import { fakeSessionId } from './dead-code.ts';
 import { getJson } from './fetch-client.ts';
 import { headline, todayLabel } from './unused-helpers.ts';
 import { initSearch } from './search.ts';
-import { renderCategories, renderProducts, renderReviews } from './render.ts';
+import { renderCarousel, renderCategories, renderProducts, renderReviews } from './render.ts';
 import { initVitals } from './vitals.ts';
+import type { ProductCard } from './types.ts';
 
 interface ReviewDto {
   author: string;
@@ -52,7 +52,7 @@ async function boot(): Promise<void> {
   // PROBLEMA #2: el carrusel vuelve a pedir el mismo endpoint.
   performance.mark('carrusel-inicio');
   const again = await getJson<ProductCard[]>('/api/products');
-  initCarousel(document.querySelector('[data-carousel]')!, again.slice(0, 5));
+  renderCarousel(document.querySelector('[data-carousel]')!, again.slice(0, 5));
   performance.mark('carrusel-fin');
   performance.measure('fetch-carrusel', 'carrusel-inicio', 'carrusel-fin');
 }
