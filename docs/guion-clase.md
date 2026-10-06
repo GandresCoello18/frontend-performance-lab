@@ -80,7 +80,17 @@ Rama: `fix/04-seguridad`.
 
 Consola de la API: líneas `[vitals]` con LCP/INP/CLS/TTFB. Performance: medida `cascada-inicial`.
 
-Lighthouse **solo** sobre `pnpm preview`. Compara `main` vs `solucion` (cifras de esta máquina en el README). Cierra: «el mejor JS es el que no envías; el que queda, que pida poco y se pueda observar.»
+Lighthouse **solo** sobre `pnpm preview`. En esta máquina (Lighthouse 12.8.2, Chrome headless, `pnpm start` :4173):
+
+|                 | `main`               | `solucion`      |
+| --------------- | -------------------- | --------------- |
+| Performance     | 69                   | 94              |
+| LCP             | 12,6 s               | 2,4 s           |
+| Transferido     | 17,8 MB              | 126 KiB         |
+| JS              | 213 kB + map 1,3 MB  | 15 kB, 3 chunks |
+| `/api/products` | 35 KB con `supplier` | 1,3 KB DTO      |
+
+Cierra: «el mejor JS es el que no envías; el que queda, que pida poco y se pueda observar.»
 
 ## Extra para preguntas (si sobra tiempo)
 

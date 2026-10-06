@@ -10,7 +10,7 @@ Si GitHub Actions no arranca por un bloqueo de facturación de la cuenta, no es 
 
 ## Requisitos
 
-- Node 22 (`(.nvmrc)`)
+- Node 22 (`.nvmrc`)
 - pnpm 10.33.3 (`packageManager` en `package.json`)
 
 ```bash
@@ -66,8 +66,28 @@ Los comentarios `// PROBLEMA #N` del código apuntan a esta tabla.
 
 ## Mediciones (esta máquina de demo)
 
-Cifras de **Lighthouse CLI 12.8** contra `pnpm start` en `http://127.0.0.1:4173`, Chrome headless. No las copies como verdad universal: mídalas otra vez en clase.
+Cifras **reales** de Lighthouse CLI **12.8.2** + Chrome headless (`--no-sandbox`) contra `pnpm start` en `http://127.0.0.1:4173`, 6 oct 2026. No son una verdad universal: mídalas otra vez en clase. El delay artificial de ~380 ms por request de la API está en ambas ramas a propósito (para que la cascada se vea en Network).
 
-_(Se rellenan en el siguiente commit de documentación, tras correr Lighthouse sobre `main` y `solucion`.)_
+| Métrica                  | `main` (problema)                   | `solucion`                             |
+| ------------------------ | ----------------------------------- | -------------------------------------- |
+| Performance (Lighthouse) | **69**                              | **94**                                 |
+| LCP                      | 12,6 s                              | 2,4 s                                  |
+| FCP                      | 3,1 s                               | 2,4 s                                  |
+| CLS                      | 0,043                               | 0,050                                  |
+| TBT                      | 10 ms                               | 0 ms                                   |
+| Peticiones               | 24                                  | 20                                     |
+| Transferido              | 17 817 KiB (~17,8 MB)               | 126 KiB                                |
+| JS Vite (sin comprimir)  | 212,88 kB + source map 1,30 MB      | 14,87 kB en 3 chunks, sin map          |
+| JS Vite gzip             | 71,86 kB                            | 6,06 kB                                |
+| `GET /api/products`      | 35 056 B, 25 campos, con `supplier` | 1 311 B, 6 campos públicos, paginado   |
+| Hero                     | JPEG 1 960 940 B                    | WebP 2 948 B                           |
+| Imágenes en Lighthouse   | 10 peticiones / ~17,8 MB            | 6 peticiones / ~23 KB (`loading=lazy`) |
+
+Cómo repetirlo:
+
+```bash
+pnpm preview
+npx lighthouse http://127.0.0.1:4173 --only-categories=performance --chrome-flags="--headless --no-sandbox"
+```
 
 Guión minuto a minuto: [`docs/guion-clase.md`](docs/guion-clase.md).
