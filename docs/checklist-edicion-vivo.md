@@ -1,236 +1,89 @@
-# Checklist: edición en vivo (rama `main`)
+# Checklist: edición en vivo — fetch (rama `main`)
 
-Andrés edita **en `main`**. No hay `git switch` en el minuto 2. Vite con **`pnpm dev`** (HMR). Segunda pantalla: este archivo + [`hoja-de-ruta.md`](hoja-de-ruta.md).
+Andrés edita **en `main`**. Un pegado. Vite: **`pnpm dev`**. El carrusel JS **no se toca**. Segunda pantalla: este archivo + [`hoja-de-ruta.md`](hoja-de-ruta.md).
 
-Plan B al final. Snippets listos para pegar: no reescribas de memoria.
+El API de `main` devuelve **arrays** (`Product[]`), no `{ items, page }`. No pegues las URLs con `?page=` de `fix/02-fetch` o se rompe el render.
 
 ## Antes de grabar
 
-- [ ] `git switch main` y working tree limpio (`git status`).
-- [ ] `pnpm dev` → [http://127.0.0.1:5173](http://127.0.0.1:5173) (no `preview` hoy: hace falta HMR).
-- [ ] Chrome **154+**. Zoom 125–150 %. Editor 18–20 px.
-- [ ] Pestañas abiertas: `index.html` · `src/carousel.ts` · `src/render.ts` · `src/main.ts` · `src/styles/main.css`.
-- [ ] Este checklist a la vista. DevTools: **Performance**.
-- [ ] Terminal con Plan B escrito, sin Enter: `git checkout -- index.html src/main.ts src/render.ts src/styles/main.css`
+- [ ] `git switch main` y `git status` limpio.
+- [ ] `pnpm dev` → [http://127.0.0.1:5173](http://127.0.0.1:5173) (HMR; no `preview` hoy).
+- [ ] Zoom 125–150 %. Editor 18–20 px.
+- [ ] DevTools: **Network** (Disable cache ON, Fetch/XHR). Consola a la vista para `[perf] cascada-inicial`.
+- [ ] Pestaña abierta: `src/main.ts` (líneas del `PROBLEMA #2`).
+- [ ] Plan B, sin Enter: `git checkout -- src/main.ts`
 
-## Orden (no improvisar el orden)
+## Orden
 
-1. Browser: clicks en el carrusel + Performance (record → 2 next → stop).
-2. Editor: `src/carousel.ts` (el impuesto). Pregunta. Silencio.
-3. **Pegar** HTML → `renderCarousel` → `main.ts` → CSS. Guardar cada uno. Vite recarga.
-4. Browser: botones/marcadores nativos. CSS `@supports`. Cierre abierto.
-
-Si HMR no pilla el HTML: hard refresh (Ctrl+Shift+R).
-
----
-
-## 1. `index.html` — sustituye el bloque del carrusel
-
-**Quita** el `<div class="carousel" …>…</div>` (botones, track, dots). **Deja** el `section-head`.
-
-**Pega:**
-
-```html
-<ul class="carousel" data-carousel aria-label="Productos destacados"></ul>
-<p class="carousel-hint">Desliza. En Chrome 154+ el navegador genera botones y marcadores.</p>
-```
+1. Network: Reload. Señala la escalera y `/api/products` **dos veces**.
+2. Editor: el bloque de `await` + el segundo GET.
+3. Pregunta. Silencio.
+4. **Un pegado** (abajo). Guarda. HMR.
+5. Network otra vez + consola (`cascada-inicial` ms).
+6. Carrusel: sigue ahí, en JS. Teaser. Cierre.
 
 ---
 
-## 2. `src/render.ts` — pega al final del archivo
+## El pegado (único) — `src/main.ts`
 
-El `import type { ProductCard }` ya está. No lo toques. Añade esto debajo de `renderCategories`:
+**Selecciona** desde el comentario `// PROBLEMA #2: cascada` hasta `performance.measure('fetch-carrusel', …);` inclusive (los dos bloques #2: cuatro `await` + el segundo GET).
+
+**Pega esto.** Sigue habiendo `initCarousel`. Cambia _de dónde salen_ los datos, no el widget.
 
 ```ts
-export function renderCarousel(list: HTMLElement, products: ProductCard[]): void {
-  list.innerHTML = products
-    .map(
-      (product) => `<li class="slide" data-nombre="${product.name}">
-      <article>
-        <img src="${product.image}" alt="${product.name}" />
-        <h3>${product.name}</h3>
-        <p>${product.shortDescription}</p>
-        <span class="price">${formatPrice(product.price)}</span>
-      </article>
-    </li>`,
-    )
-    .join('');
+// Una ronda en paralelo. El carrusel reutiliza `featured` (nada de segundo GET).
+performance.mark('carga-inicio');
+
+const [featured, products, reviews, categories] = await Promise.all([
+  getJson<ProductCard[]>('/api/featured'),
+  getJson<ProductCard[]>('/api/products'),
+  getJson<ReviewDto[]>('/api/reviews'),
+  getJson<CategoryDto[]>('/api/categories'),
+]);
+
+const highlight = featured[0];
+if (highlight) {
+  document.querySelector('[data-hero-kicker]')!.textContent = highlight.name;
+  document.querySelector('[data-hero-text]')!.textContent = highlight.shortDescription;
 }
+
+renderProducts(document.querySelector('[data-grid]')!, products);
+renderReviews(document.querySelector('[data-reviews]')!, reviews);
+renderCategories(document.querySelector('[data-cats]')!, categories);
+
+performance.mark('carga-fin');
+performance.measure('cascada-inicial', 'carga-inicio', 'carga-fin');
+const measure = performance.getEntriesByName('cascada-inicial')[0];
+console.log('[perf] cascada-inicial', measure?.duration);
+
+initCarousel(document.querySelector('[data-carousel]')!, featured);
 ```
+
+Guarda. En Network: **cuatro barras a la vez**, un solo `/api/products`. En consola: `cascada-inicial` ~380 ms (antes ~1,9 s: 5 × ~380 ms).
 
 ---
 
-## 3. `src/main.ts` — tres toques
+## En casa / Plan B (no grabar si el tiempo aprieta)
 
-**Import** (línea 1). De:
+Caché/dedupe, `fields`, debounce: rama `fix/02-fetch` (`src/cache.ts`, `fetch-client.ts`, API). Hoy no se pegan: son más archivos y el API de `main` no pagina.
 
-```ts
-import { initCarousel, type ProductCard } from './carousel.ts';
-```
-
-a:
-
-```ts
-import type { ProductCard } from './carousel.ts';
-```
-
-**Import de render** (línea 6). De:
-
-```ts
-import { renderCategories, renderProducts, renderReviews } from './render.ts';
-```
-
-a:
-
-```ts
-import { renderCarousel, renderCategories, renderProducts, renderReviews } from './render.ts';
-```
-
-**Llamada** (busca `initCarousel`). De:
-
-```ts
-initCarousel(document.querySelector('[data-carousel]')!, again.slice(0, 5));
-```
-
-a:
-
-```ts
-renderCarousel(document.querySelector('[data-carousel]')!, again.slice(0, 5));
-```
-
-`carousel.ts` se queda en el repo. Ya no se ejecuta. Eso es el gag: el widget muerto.
-
----
-
-## 4. `src/styles/main.css` — sustituye el bloque del widget
-
-**Quita** desde `.carousel {` hasta `.dot.active { … }` inclusive (track, botones, dots). **No toques** `.slide img` ni `.grid`.
-
-**Pega:**
-
-```css
-.carousel {
-  list-style: none;
-  margin: 0;
-  position: relative;
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  background: var(--card);
-  border-radius: 24px;
-  padding: 1.2rem 3.4rem 1.4rem;
-  box-shadow: var(--shadow);
-  scrollbar-width: none;
-}
-
-.carousel::-webkit-scrollbar {
-  display: none;
-}
-
-.slide {
-  flex: 0 0 42%;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  min-width: 240px;
-}
-
-.carousel-hint {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin: 0.8rem 0 0;
-}
-
-/* Chrome 154+: [before | after] || [links | tabs] */
-@supports (scroll-marker-group: after tabs) {
-  .carousel {
-    scroll-marker-group: after tabs;
-    anchor-name: --carrusel;
-  }
-
-  .carousel-hint {
-    display: none;
-  }
-
-  .carousel::scroll-button(*) {
-    position: absolute;
-    position-anchor: --carrusel;
-    align-self: anchor-center;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--ink);
-    color: white;
-    font-size: 1.4rem;
-    cursor: pointer;
-  }
-
-  .carousel::scroll-button(*):disabled {
-    opacity: 0.25;
-    cursor: default;
-  }
-
-  .carousel::scroll-button(left) {
-    content: '‹' / 'Anterior';
-    right: calc(anchor(left) - 52px);
-  }
-
-  .carousel::scroll-button(right) {
-    content: '›' / 'Siguiente';
-    left: calc(anchor(right) - 52px);
-  }
-
-  .carousel::scroll-marker-group {
-    display: flex;
-    justify-content: center;
-    gap: 0.45rem;
-    margin-top: 0.9rem;
-  }
-
-  .slide::scroll-marker {
-    content: attr(data-nombre);
-    width: 9px;
-    height: 9px;
-    border-radius: 99px;
-    background: #d7cdc0;
-    overflow: hidden;
-    text-indent: 12px;
-    color: transparent;
-  }
-
-  .slide::scroll-marker:target-current {
-    background: var(--accent);
-    width: 22px;
-  }
-}
-```
-
-Guarda. HMR. Vuelve al browser.
-
----
-
-## Plan B (si se rompe)
-
-No hagas debug en cámara más de 15 s.
+**Si se rompe (15 s máx.):**
 
 ```bash
-git checkout -- index.html src/main.ts src/render.ts src/styles/main.css
+git checkout -- src/main.ts
 ```
 
-Recarga. Si sigue mal:
+Último recurso:
 
 ```bash
 git checkout -- .
-git switch fix/01-carrusel-css
+git switch fix/02-fetch
 pnpm dev
 ```
 
-`fix/01-carrusel-css` es el mismo resultado ya aplicado. No es el plan A.
+Ahí el carrusel **sigue en JS** (`initCarousel`). No es `fix/01`.
 
-Tras la clase, para dejar `main` sucio otra vez:
+Tras la clase, dejar `main` sucio otra vez:
 
 ```bash
 git switch main
