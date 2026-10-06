@@ -1,21 +1,16 @@
 # Hoja de ruta — 4,5 min (segunda pantalla)
 
-Tema: **borrar el JS del carrusel**. Rama: **`main`**. URL: `http://127.0.0.1:5173` (`pnpm dev`). Chrome 154+. Pega desde [`checklist-edicion-vivo.md`](checklist-edicion-vivo.md).
+Tema: **fetch** (cascada + GET duplicado). Rama: **`main`**. URL: `:5173` (`pnpm dev`). Carrusel JS **no se toca**. Pega: [`checklist-edicion-vivo.md`](checklist-edicion-vivo.md).
 
-|   Tiempo | Pantalla (haz esto)                                                              | Ideas, no las leas                                             |
-| -------: | -------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **0:00** | Tienda. Click next 2 veces.                                                      | Funciona. El coste no se ve. Vas a _borrar_ el widget en vivo. |
-| **0:15** | F12 → **Performance** → Record → clicks → Stop.                                  | Camarero vs cinta del sushi. Pagamos el hilo principal.        |
-| **0:40** | `src/carousel.ts`: estado, dots, ARIA, `scrollTo`.                               | No está mal. Sobramos.                                         |
-| **1:50** | Cámara. **Calla.**                                                               | «¿Cuál de estas líneas _tiene_ que ser JS?» Espera.            |
-| **2:05** | Pega HTML: `<ul class="carousel">` + hint.                                       | Se van los botones del markup.                                 |
-| **2:20** | Pega `renderCarousel` al final de `render.ts`.                                   | Solo pinta `<li>`.                                             |
-| **2:35** | `main.ts`: `import type` + `renderCarousel(…)`.                                  | `carousel.ts` deja de ejecutarse.                              |
-| **2:50** | Pega CSS `@supports` (sustituye `.carousel` … `.dot`).                           | `scroll-marker-group: after tabs`.                             |
-| **3:50** | Recarga si hace falta. Click marcadores nativos.                                 | El navegador genera botones y puntos.                          |
-| **4:20** | `@supports`. Corta en pregunta.                                                  | ¿Shippeamos el fallback? ¿Cuándo sí JS? Próxima: fetches.      |
-|  _+30 s_ | Dato: JS **213 kB** en `main`. Lighthouse solo si sobra (69 → 94, en `preview`). | HMR es `dev`. Medir producción es `preview`.                   |
+|   Tiempo | Pantalla (haz esto)                                                              | Ideas, no las leas                                         |
+| -------: | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **0:00** | Network abierto. Reload. Escalera de barras.                                     | Tarda. No es el CSS. Cinco viajes en fila.                 |
+| **0:25** | Hover: `/api/products` **dos veces**.                                            | El carrusel pidió el catálogo otra vez.                    |
+| **0:45** | `src/main.ts`: cuatro `await` + `again = getJson('/api/products')`.              | B no dependía de A. Teatro de `await`.                     |
+| **1:50** | Cámara. **Calla.**                                                               | «¿Cuántas veces pedimos lo mismo?» Espera.                 |
+| **2:10** | Un pegado: `Promise.all` + `initCarousel(..., featured)`.                        | Paralelo y sin repetir. El widget sigue.                   |
+| **3:20** | Reload. Cuatro barras juntas. Consola: `cascada-inicial` ~380 ms (antes ~1,9 s). | Un número. No Lighthouse.                                  |
+| **4:15** | Click al carrusel (sigue en JS). Corta.                                          | Medir → paralelo → no repetir. Próxima: CSS nativo.        |
+|  _+30 s_ | Caché = casa (`fix/02-fetch`).                                                   | Plan B: `git checkout -- src/main.ts`. Nunca `fix/01` hoy. |
 
-**Plan B:** `git checkout -- index.html src/main.ts src/render.ts src/styles/main.css`. Último recurso: `git switch fix/01-carrusel-css`.
-
-**No tocar hoy:** Network `/api`, XSS, `.env`, `git switch` en el plan A.
+**No tocar hoy:** `carousel.ts`, HTML del carrusel, XSS, `.env`, `git switch` en el plan A.
