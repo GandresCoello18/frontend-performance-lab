@@ -6,18 +6,16 @@
     <title>Casa Lumen — Diseño para el hogar</title>
     <meta
       name="description"
-      content="Tienda demo para una clase de rendimiento frontend. Versión generada con IA sin cuidado: funciona y se ve bien, pero el Network y Lighthouse cuentan otra historia."
+      content="Tienda demo: versión corregida de la clase de rendimiento frontend."
     />
-    <!-- PROBLEMA #3: fuente remota bloqueante, sin preconnect y display=block. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=block"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap"
     />
-    <!-- PROBLEMA #3: CSS no usado que bloquea el primer pintado. -->
-    <link rel="stylesheet" href="/src/styles/unused.css" />
+    <link rel="preload" as="image" href="/images/hero.webp" fetchpriority="high" />
     <link rel="stylesheet" href="/src/styles/main.css" />
-    <!-- PROBLEMA #3: script síncrono en el head (bloquea el parseo). -->
-    <script src="/legacy-analytics.js"></script>
   </head>
   <body>
     <header class="topbar">
@@ -40,42 +38,41 @@
           <p class="eyebrow" data-fecha></p>
           <h1>Objetos serenos para una casa que se usa.</h1>
           <p class="lede" data-hero-text>
-            Audio, luz, cerámica y textil. Una tienda demo que se ve bien… hasta que abres DevTools.
+            Audio, luz, cerámica y textil. Esta rama es la versión cuidada: menos JS, menos red, más
+            observabilidad.
           </p>
           <p class="kicker" data-hero-kicker></p>
           <a class="btn" href="#catalogo">Ver el catálogo</a>
+          <p class="status" data-status hidden></p>
         </div>
         <div class="hero-media">
-          <!-- PROBLEMA #3: imagen LCP enorme, sin width/height (CLS), sin fetchpriority ni lazy. -->
-          <img src="/images/hero.jpg" alt="Rincón de salón con luz cálida, Casa Lumen" />
+          <img
+            src="/images/hero.webp"
+            alt="Rincón de salón con luz cálida, Casa Lumen"
+            width="960"
+            height="640"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
       </section>
 
       <section id="destacados" class="section">
         <div class="section-head">
           <h2>Destacados de la temporada</h2>
-          <p>Un carrusel clásico: estado, botones, puntos, scroll y ARIA a mano.</p>
+          <p>Solo HTML y CSS: <code>scroll-marker-group</code> con fallback a scroll-snap.</p>
         </div>
-        <div
-          class="carousel"
-          data-carousel
-          role="region"
-          aria-roledescription="carrusel"
-          aria-label="Productos destacados"
-        >
-          <button type="button" class="carousel-btn prev" data-prev aria-label="Anterior">‹</button>
-          <div class="carousel-track" data-track tabindex="0"></div>
-          <button type="button" class="carousel-btn next" data-next aria-label="Siguiente">
-            ›
-          </button>
-          <div class="carousel-dots" data-dots role="tablist" aria-label="Selector de lámina"></div>
-        </div>
+        <ul class="carousel" data-carousel aria-label="Productos destacados"></ul>
+        <p class="carousel-hint">
+          Desliza para ver más. En Chrome 154+ el navegador genera botones, marcadores y el patrón
+          de pestañas. En Firefox y Safari queda un scroll-snap nativo.
+        </p>
       </section>
 
       <section id="catalogo" class="section">
         <div class="section-head">
           <h2>Catálogo</h2>
-          <p>La ficha usa dos o tres campos. El JSON trae proveedores, costes y reseñas.</p>
+          <p>El JSON público trae solo los campos de la ficha, paginados.</p>
         </div>
         <div class="grid" data-grid></div>
       </section>

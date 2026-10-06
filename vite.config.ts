@@ -5,9 +5,8 @@ export default defineConfig({
     environment: 'node',
     include: ['tests/**/*.test.ts'],
   },
-  // PROBLEMA #4: source maps públicos en producción (el bundle revela el código original).
   build: {
-    sourcemap: true,
+    sourcemap: false,
     modulePreload: false,
     target: 'es2022',
   },
