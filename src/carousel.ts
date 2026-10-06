@@ -13,7 +13,7 @@ export interface ProductCard {
 function slideTemplate(product: ProductCard, index: number, total: number): string {
   return `
     <article class="slide" role="group" aria-roledescription="lámina" aria-label="${index + 1} de ${total}" data-index="${index}">
-      <img src="${product.image}" alt="${product.name}" />
+      <img src="${product.image}" alt="${product.name}" width="960" height="640" loading="lazy" decoding="async" />
       <h3>${product.name}</h3>
       <p>${product.shortDescription}</p>
       <span class="price">${formatPrice(product.price)}</span>

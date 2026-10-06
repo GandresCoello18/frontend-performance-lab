@@ -1,10 +1,7 @@
 import { initCarousel, type ProductCard } from './carousel.ts';
-import { fakeSessionId } from './dead-code.ts';
 import { getJson } from './fetch-client.ts';
-import { headline, todayLabel } from './unused-helpers.ts';
-import { initSearch } from './search.ts';
+import { headline, todayLabel } from './format.ts';
 import { renderCategories, renderProducts, renderReviews } from './render.ts';
-import { initVitals } from './vitals.ts';
 
 interface ReviewDto {
   author: string;
@@ -17,13 +14,12 @@ interface CategoryDto {
 }
 
 async function boot(): Promise<void> {
-  initVitals();
+  void import('./vitals.ts').then((m) => m.initVitals());
   document.querySelector('[data-fecha]')!.textContent = `${headline('catálogo')} · ${todayLabel()}`;
-  console.log('[sesion]', fakeSessionId());
 
   const searchInput = document.querySelector<HTMLInputElement>('[data-search]')!;
   const searchResults = document.querySelector<HTMLElement>('[data-search-results]')!;
-  initSearch(searchInput, searchResults);
+  void import('./search.ts').then((m) => m.initSearch(searchInput, searchResults));
 
   // PROBLEMA #2: cascada — cuatro awaits en serie que podrían ir en Promise.all.
   performance.mark('carga-inicio');

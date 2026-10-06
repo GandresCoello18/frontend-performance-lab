@@ -3,7 +3,7 @@ import type { ProductCard } from './carousel.ts';
 
 function cardHtml(product: ProductCard): string {
   return `<article class="card" data-id="${product.id}">
-    <img src="${product.image}" alt="${product.name}" />
+    <img src="${product.image}" alt="${product.name}" width="960" height="640" loading="lazy" decoding="async" />
     <h3>${product.name}</h3>
     <p>${product.shortDescription}</p>
     <span class="price">${formatPrice(product.price)}</span>

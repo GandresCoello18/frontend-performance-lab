@@ -8,16 +8,15 @@
       name="description"
       content="Tienda demo para una clase de rendimiento frontend. Versión generada con IA sin cuidado: funciona y se ve bien, pero el Network y Lighthouse cuentan otra historia."
     />
-    <!-- PROBLEMA #3: fuente remota bloqueante, sin preconnect y display=block. -->
+    <!-- Fuentes: preconnect + font-display=swap (no bloquean el texto). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=block"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap"
     />
-    <!-- PROBLEMA #3: CSS no usado que bloquea el primer pintado. -->
-    <link rel="stylesheet" href="/src/styles/unused.css" />
+    <link rel="preload" as="image" href="/images/hero.webp" fetchpriority="high" />
     <link rel="stylesheet" href="/src/styles/main.css" />
-    <!-- PROBLEMA #3: script síncrono en el head (bloquea el parseo). -->
-    <script src="/legacy-analytics.js"></script>
   </head>
   <body>
     <header class="topbar">
@@ -46,8 +45,14 @@
           <a class="btn" href="#catalogo">Ver el catálogo</a>
         </div>
         <div class="hero-media">
-          <!-- PROBLEMA #3: imagen LCP enorme, sin width/height (CLS), sin fetchpriority ni lazy. -->
-          <img src="/images/hero.jpg" alt="Rincón de salón con luz cálida, Casa Lumen" />
+          <img
+            src="/images/hero.webp"
+            alt="Rincón de salón con luz cálida, Casa Lumen"
+            width="960"
+            height="640"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
       </section>
 

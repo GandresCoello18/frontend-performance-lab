@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPrice, slugify } from '../src/format.ts';
+import { formatPrice, headline, slugify } from '../src/format.ts';
 
 describe('formatPrice', () => {
   it('formatea euros en locale es-ES', () => {
@@ -12,5 +12,11 @@ describe('formatPrice', () => {
 describe('slugify', () => {
   it('quita acentos y espacios', () => {
     expect(slugify('Auriculares Nórdica')).toBe('auriculares-nordica');
+  });
+});
+
+describe('headline (Intl / nativo)', () => {
+  it('capitaliza sin lodash', () => {
+    expect(headline('catálogo')).toBe('Catálogo');
   });
 });
