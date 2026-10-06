@@ -37,8 +37,9 @@ index.html              UI de la tienda
 src/                    front en TypeScript (sin React)
 server/                 API mock (Hono + node:http)
 public/images/          JPEG pesados (main) / WebP en las ramas de carga
-docs/guion-clase.md     guión Platzi (acciones + ideas, no discurso)
+docs/guion-clase.md     guión Platzi (edición en vivo en main)
 docs/hoja-de-ruta.md    una página: tiempo | pantalla | frases
+docs/checklist-edicion-vivo.md  snippets para pegar en clase
 .github/workflows/ci.yml
 ```
 
@@ -91,4 +92,4 @@ pnpm preview
 npx lighthouse http://127.0.0.1:4173 --only-categories=performance --chrome-flags="--headless --no-sandbox"
 ```
 
-Guión de clase (un tema: borrar el JS del carrusel): [`docs/guion-clase.md`](docs/guion-clase.md) · hoja imprimible: [`docs/hoja-de-ruta.md`](docs/hoja-de-ruta.md).
+Guión de clase (un tema: borrar el JS del carrusel, **edición en vivo** en `main`): [`docs/guion-clase.md`](docs/guion-clase.md) · hoja imprimible: [`docs/hoja-de-ruta.md`](docs/hoja-de-ruta.md) · snippets: [`docs/checklist-edicion-vivo.md`](docs/checklist-edicion-vivo.md).
