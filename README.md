@@ -2,7 +2,7 @@
 
 Demo de clase para **Andrés Coello**: una landing de tienda que **funciona y se ve bien**, pero está hecha «con IA, sin cuidado». El código de `main` contiene problemas reales de rendimiento, red, carga y seguridad, marcados con `PROBLEMA #N`. La instrumentación de **web-vitals** (LCP, INP, CLS, TTFB) sí está a propósito: es el faro para medir antes y después.
 
-La tesis de la clase (y del post de LinkedIn): **una de las mejores optimizaciones de frontend sigue siendo borrar JavaScript**. El carrusel de productos en `main` replica el lado izquierdo del post (estado, prev/next, puntos, scroll, foco y ARIA a mano). La rama `fix/01-carrusel-css` y `solucion` lo sustituyen por HTML + CSS con `scroll-marker-group` (Chrome 154, modos `links` / `tabs`; ~71 % de soporte global, solo Chromium; Firefox y Safari hacen fallback a scroll-snap).
+La tesis de **esta** clase Platzi: **medir, pedir en paralelo, no repetir**. `main` sale con una cascada de `await` y un segundo GET a `/api/products` para el carrusel. El carrusel JS **se queda** (teaser de la siguiente: `scroll-marker-group`). Guión: [`docs/guion-clase.md`](docs/guion-clase.md).
 
 > Lighthouse hay que lanzarlo contra **`pnpm preview` / `pnpm start`** (build de producción). En `pnpm dev` Vite sirve módulos sueltos, sin minificar y con HMR: las métricas mienten.
 
@@ -37,7 +37,7 @@ index.html              UI de la tienda
 src/                    front en TypeScript (sin React)
 server/                 API mock (Hono + node:http)
 public/images/          JPEG pesados (main) / WebP en las ramas de carga
-docs/guion-clase.md     guión Platzi (edición en vivo en main)
+docs/guion-clase.md     guión Platzi (fetch en vivo en main)
 docs/hoja-de-ruta.md    una página: tiempo | pantalla | frases
 docs/checklist-edicion-vivo.md  snippets para pegar en clase
 .github/workflows/ci.yml
@@ -92,4 +92,4 @@ pnpm preview
 npx lighthouse http://127.0.0.1:4173 --only-categories=performance --chrome-flags="--headless --no-sandbox"
 ```
 
-Guión de clase (un tema: borrar el JS del carrusel, **edición en vivo** en `main`): [`docs/guion-clase.md`](docs/guion-clase.md) · hoja imprimible: [`docs/hoja-de-ruta.md`](docs/hoja-de-ruta.md) · snippets: [`docs/checklist-edicion-vivo.md`](docs/checklist-edicion-vivo.md).
+Guión de clase (un tema: **fetch** en vivo en `main`): [`docs/guion-clase.md`](docs/guion-clase.md) · hoja: [`docs/hoja-de-ruta.md`](docs/hoja-de-ruta.md) · snippets: [`docs/checklist-edicion-vivo.md`](docs/checklist-edicion-vivo.md).
