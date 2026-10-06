@@ -37,19 +37,20 @@ index.html              UI de la tienda
 src/                    front en TypeScript (sin React)
 server/                 API mock (Hono + node:http)
 public/images/          JPEG pesados (main) / WebP en las ramas de carga
-docs/guion-clase.md     guión de 5 minutos
+docs/guion-clase.md     guión Platzi (acciones + ideas, no discurso)
+docs/hoja-de-ruta.md    una página: tiempo | pantalla | frases
 .github/workflows/ci.yml
 ```
 
 ## Ramas
 
-| Rama                  | Contenido                                                   |
-| --------------------- | ----------------------------------------------------------- |
-| `main`                | Versión problemática (punto de partida de la clase)         |
-| `fix/01-carrusel-css` | Carrusel HTML+CSS + fallback scroll-snap                    |
-| `fix/02-fetch`        | Promise.all, caché, DTO/paginación, ETag, debounce          |
-| `fix/03-carga`        | Imágenes, fuentes, bundle, lazy/priority, code splitting    |
-| `fix/04-seguridad`    | XSS, secretos, cabeceras, CORS, source maps, `.env`         |
+| Rama                  | Contenido                                                            |
+| --------------------- | -------------------------------------------------------------------- |
+| `main`                | Versión problemática (punto de partida de la clase)                  |
+| `fix/01-carrusel-css` | Carrusel HTML+CSS + fallback scroll-snap                             |
+| `fix/02-fetch`        | Promise.all, caché, DTO/paginación, ETag, debounce                   |
+| `fix/03-carga`        | Imágenes, fuentes, bundle, lazy/priority, code splitting             |
+| `fix/04-seguridad`    | XSS, secretos, cabeceras, CORS, source maps, `.env`                  |
 | `solucion`            | Todo lo anterior junto (abre un PR hacia `main` y **no lo mergees**) |
 
 ## Problemas (mapa para DevTools)
@@ -90,4 +91,4 @@ pnpm preview
 npx lighthouse http://127.0.0.1:4173 --only-categories=performance --chrome-flags="--headless --no-sandbox"
 ```
 
-Guión minuto a minuto: [`docs/guion-clase.md`](docs/guion-clase.md).
+Guión de clase (un tema: borrar el JS del carrusel): [`docs/guion-clase.md`](docs/guion-clase.md) · hoja imprimible: [`docs/hoja-de-ruta.md`](docs/hoja-de-ruta.md).
